@@ -1,0 +1,6 @@
+/.env.local
+/.env.samanthobot
+/.env.auditobot
+node_modules
+.next
+next
