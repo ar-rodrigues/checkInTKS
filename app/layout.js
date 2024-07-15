@@ -1,5 +1,6 @@
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { useEffect } from "react";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,7 +21,6 @@ export const metadata = {
     capable: true,
     statusBarStyle: "default",
     title: APP_DEFAULT_TITLE,
-    // startUpImage: [],
   },
   formatDetection: {
     telephone: false,
@@ -49,9 +49,45 @@ export const viewport = {
 };
 
 export default function RootLayout({ children }) {
+  useEffect(() => {
+    let deferredPrompt;
+    const installButton = document.getElementById("installButton");
+
+    const handleBeforeInstallPrompt = (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      installButton.style.display = "block"; // Show the install button
+    };
+
+    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+
+    installButton.addEventListener("click", () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === "accepted") {
+            console.log("User accepted the A2HS prompt");
+          } else {
+            console.log("User dismissed the A2HS prompt");
+          }
+          deferredPrompt = null; // Clear the prompt
+        });
+      }
+    });
+
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+    };
+  }, []);
+
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        {children}
+        <button id="installButton" style={{ display: 'none' }}>
+          Instalar
+        </button>
+      </body>
     </html>
   );
 }
