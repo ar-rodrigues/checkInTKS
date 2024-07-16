@@ -50,13 +50,13 @@ export default function RootLayout({ children }) {
         {/* Add other meta tags from siteMetadata as needed */}
       </head>
       <body className={inter.className}>
-        {children}
         <button
           id="installButton"
-          className="fixed hidden px-4 py-2 text-white bg-blue-500 rounded-md shadow-lg bottom-5 right-5"
+          className="flex hidden px-2 py-2 text-white bg-blue-500 rounded-md shadow-lg bottom-5 right-5"
         >
-          Install App
+          Instalar
         </button>
+        {children}
       </body>
     </html>
   );
