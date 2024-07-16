@@ -58,7 +58,7 @@ export default function RootLayout({ children }) {
       <body className={inter.className}>
         <button
           id="installButton"
-          className="fixed hidden w-5 h-10 px-4 py-2 text-white bg-blue-500 rounded-md shadow-lg left-4 bottom-5"
+          className="fixed hidden h-10 px-4 py-2 text-white bg-blue-500 rounded-md shadow-lg w-fit left-4 bottom-5"
         >
           Instalar
         </button>
