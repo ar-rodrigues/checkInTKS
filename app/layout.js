@@ -51,7 +51,10 @@ export default function RootLayout({ children }) {
       </head>
       <body className={inter.className}>
         {children}
-        <button id="installButton" style={{ display: 'none' }}>
+        <button
+          id="installButton"
+          className="fixed hidden px-4 py-2 text-white bg-blue-500 rounded-md shadow-lg bottom-5 right-5"
+        >
           Install App
         </button>
       </body>
