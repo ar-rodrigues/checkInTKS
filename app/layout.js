@@ -52,7 +52,7 @@ export default function RootLayout({ children }) {
       <body className={inter.className}>
         <button
           id="installButton"
-          className="flex hidden px-2 py-2 text-white bg-blue-500 rounded-md shadow-lg bottom-5 right-5"
+          className="flex flex-col px-2 py-2 text-white bg-blue-500 rounded-md shadow-lg bottom-5 right-5"
         >
           Instalar
         </button>
