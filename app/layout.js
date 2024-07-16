@@ -18,7 +18,12 @@ export default function RootLayout({ children }) {
       installButton.style.display = "block"; // Show the install button
     };
 
+    const handleAppInstalled = () => {
+      installButton.style.display = "none"; // Hide the install button
+    };
+
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+    window.addEventListener("appinstalled", handleAppInstalled);
 
     installButton.addEventListener("click", () => {
       if (deferredPrompt) {
@@ -36,6 +41,7 @@ export default function RootLayout({ children }) {
 
     return () => {
       window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+      window.removeEventListener("appinstalled", handleAppInstalled);
     };
   }, []);
 
@@ -52,7 +58,7 @@ export default function RootLayout({ children }) {
       <body className={inter.className}>
         <button
           id="installButton"
-          className="flex flex-col px-2 py-2 text-white bg-blue-500 rounded-md shadow-lg bottom-5 right-5"
+          className="fixed hidden w-5 h-10 px-4 py-2 text-white bg-blue-500 rounded-md shadow-lg left-4 bottom-5"
         >
           Instalar
         </button>
