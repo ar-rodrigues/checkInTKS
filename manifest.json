@@ -1,0 +1,11 @@
+{
+  "name": "SamanthoBot",
+  "version": "1.0.0",
+  "description": "SamanthoBot",
+  "manifest_version": 3,
+  "author": "Alisson Rodrigues",
+  "action":{
+      "default_popup": "index.html",
+      "default_title": "SamanthoBot"
+  }
+}
