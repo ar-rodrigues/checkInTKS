@@ -25,12 +25,17 @@ export default function RootLayout({ children }) {
     if ('beforeinstallprompt' in window) {
       window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
     } else if (navigator.userAgent.includes('iPhone') || navigator.userAgent.includes('iPad')) {
-      // Show instructions for iOS users
-      installButton.style.display = "block";
-      installButton.innerText = "Añadir a la pantalla de inicio";
-      installButton.onclick = () => {
-        alert('Para instalar esta aplicación, ábrela en Safari, toca el botón de compartir y selecciona "Añadir a la pantalla de inicio".');
-      };
+      if (window.navigator.standalone) {
+        // If the app is already installed on the home screen, hide the button
+        installButton.style.display = "none";
+      } else {
+        // Show instructions for iOS users
+        installButton.style.display = "block";
+        installButton.innerText = "Instalar";
+        installButton.onclick = () => {
+          alert('Para instalar esta aplicación, ábrela en Safari, toca el botón Compartir y selecciona «Añadir a la pantalla de inicio».');
+        };
+      }
     }
   
     window.addEventListener("appinstalled", handleAppInstalled);
@@ -40,6 +45,7 @@ export default function RootLayout({ children }) {
       window.removeEventListener("appinstalled", handleAppInstalled);
     };
   }, []);
+  
 
   return (
     <html lang="en">
