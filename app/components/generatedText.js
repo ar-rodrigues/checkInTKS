@@ -1,10 +1,10 @@
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { useState } from 'react';
-import ConfirmationDialog from './confirmation'; // Adjust the import path as needed
+import ConfirmationDialog from './confirmation';
 import { sendToTelegram } from '../lib/sendToTelegram';
 
 const GeneratedText = ({ formData, message, setMessage }) => {
-  const { empleado, options, location, coordinates} = formData;
+  const { empleado, options, location } = formData;
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [copyStatus, setCopyStatus] = useState({});
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -23,10 +23,7 @@ const GeneratedText = ({ formData, message, setMessage }) => {
 
   const handleSendToTelegram = (e) => {
     e.preventDefault();
-    if (!isSubmitting) {
-      setIsSubmitting(true);
-      setShowConfirmation(true);
-    }
+    setShowConfirmation(true);
   };
 
   const handleCopy = (index) => {
@@ -38,6 +35,8 @@ const GeneratedText = ({ formData, message, setMessage }) => {
 
   const confirmAndSend = async (e) => {
     e.preventDefault();
+    if (isSubmitting) return; // Prevent multiple submissions
+    setIsSubmitting(true);
     try {
       const response = await fetch('/api/sendToGoogleSheet', {
         method: 'POST',
@@ -106,7 +105,6 @@ const GeneratedText = ({ formData, message, setMessage }) => {
         <div className="mt-4">
           <button
             onClick={handleSendToTelegram}
-            disabled={isSubmitting}
             className={`px-4 py-2 text-white ${
               isSubmitting ? 'bg-blue-300' : 'bg-blue-500'
             } rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50`}
