@@ -5,6 +5,7 @@ import { sendToTelegram } from '../lib/sendToTelegram';
 
 const GeneratedText = ({ formData, message, setMessage }) => {
   const { empleado, options, location, coordinates} = formData;
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const items = [
     { label: 'Empleado', value: empleado },
     { label: 'Centro de Trabajo', value: options ? options.label : '' },
@@ -21,6 +22,7 @@ const GeneratedText = ({ formData, message, setMessage }) => {
 
   const handleSendToTelegram = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
     setShowConfirmation(true);
   };
 
@@ -47,6 +49,7 @@ const GeneratedText = ({ formData, message, setMessage }) => {
         console.log('Data sent to Google Sheets:', result);
         sendToTelegram(fullAddress, setMessage);
         setMessage('Mensaje enviada con exito!');
+        setIsSubmitting(false);
         window.alert('Operación exitosa!');
         window.location.reload();
       } else {
@@ -55,6 +58,7 @@ const GeneratedText = ({ formData, message, setMessage }) => {
       }
     } catch (error) {
       console.error('Error:', error);
+      setIsSubmitting(false);
       setMessage('Error enviando el mensaje.');
     }
     
@@ -101,9 +105,12 @@ const GeneratedText = ({ formData, message, setMessage }) => {
         <div className="mt-4">
           <button
             onClick={handleSendToTelegram}
-            className="px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue -500 focus:ring-opacity-50"
+            disabled={isSubmitting}
+            className={`px-4 py-2 text-white ${
+              isSubmitting ? 'bg-blue-300' : 'bg-blue-500'
+            } rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50`}
           >
-            Enviar
+            {isSubmitting ? 'Enviando...' : 'Enviar'}
           </button>
           {message && <div className="mt-2 text-gray-700">{message}</div>}
         </div>
@@ -123,5 +130,6 @@ const GeneratedText = ({ formData, message, setMessage }) => {
 };
 
 export default GeneratedText;
+
 
 
