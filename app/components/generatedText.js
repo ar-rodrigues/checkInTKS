@@ -6,6 +6,9 @@ import { sendToTelegram } from '../lib/sendToTelegram';
 const GeneratedText = ({ formData, message, setMessage }) => {
   const { empleado, options, location, coordinates} = formData;
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [copyStatus, setCopyStatus] = useState({});
+  const [showConfirmation, setShowConfirmation] = useState(false);
+
   const items = [
     { label: 'Empleado', value: empleado },
     { label: 'Centro de Trabajo', value: options ? options.label : '' },
@@ -15,15 +18,15 @@ const GeneratedText = ({ formData, message, setMessage }) => {
     { label: 'CP', value: location.postalCode },
     { label: 'Fecha y Hora', value: new Date().toLocaleString() },
   ];
-  const [copyStatus, setCopyStatus] = useState({});
-  const [showConfirmation, setShowConfirmation] = useState(false);
 
   const fullAddress = items.map(item => `${item.label}: ${item.value}`).join('\n');
 
-  const handleSendToTelegram = async (e) => {
+  const handleSendToTelegram = (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
-    setShowConfirmation(true);
+    if (!isSubmitting) {
+      setIsSubmitting(true);
+      setShowConfirmation(true);
+    }
   };
 
   const handleCopy = (index) => {
@@ -44,25 +47,23 @@ const GeneratedText = ({ formData, message, setMessage }) => {
         body: JSON.stringify(formData),
       });
 
-      const result = await response.json();
       if (response.ok) {
+        const result = await response.json();
         console.log('Data sent to Google Sheets:', result);
         sendToTelegram(fullAddress, setMessage);
         setMessage('Mensaje enviada con exito!');
-        setIsSubmitting(false);
         window.alert('Operación exitosa!');
         window.location.reload();
       } else {
-        console.error('Error sending data to Google Sheets:', result);
         setMessage('Error enviando el mensaje a Google Sheets.');
       }
     } catch (error) {
       console.error('Error:', error);
-      setIsSubmitting(false);
       setMessage('Error enviando el mensaje.');
+    } finally {
+      setIsSubmitting(false);
+      setShowConfirmation(false);
     }
-    
-    setShowConfirmation(false);
   };
 
   return (
@@ -80,7 +81,7 @@ const GeneratedText = ({ formData, message, setMessage }) => {
       </div>
       <div className="mb-2 text-sm text-gray-700">
         {items.map((item, index) => (
-          <div key={index} className={`${item.label === 'Fecha y Hora' ? 'hidden' : 'block' } `}> {/**Hide Fecha y hora */}
+          <div key={index} className={`${item.label === 'Fecha y Hora' ? 'hidden' : 'block'}`}>
             <div className='flex flex-wrap items-center justify-between gap-2 py-1 place-items-end'>
               <div className='max-w-[70%]'>
                 <p className="font-semibold">{item.label}:</p>
@@ -121,8 +122,9 @@ const GeneratedText = ({ formData, message, setMessage }) => {
           onConfirm={confirmAndSend}
           onCancel={(e) => {
             e.preventDefault();
-            setShowConfirmation(false)}
-          }
+            setIsSubmitting(false);
+            setShowConfirmation(false);
+          }}
         />
       )}
     </div>
@@ -130,6 +132,3 @@ const GeneratedText = ({ formData, message, setMessage }) => {
 };
 
 export default GeneratedText;
-
-
-

@@ -33,7 +33,7 @@ export default function RootLayout({ children }) {
         installButton.style.display = "block";
         installButton.innerText = "Instalar";
         installButton.onclick = () => {
-          alert('Para instalar esta aplicación, ábrela en Safari, toca el botón Compartir y selecciona «Añadir a la pantalla de inicio».');
+          alert('Para instalar esta aplicación, ábrela en Safari, toca el botón Compartir y selecciona «Agregar a inicio».');
         };
       }
     }
