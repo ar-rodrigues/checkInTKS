@@ -15,33 +15,47 @@ export default function RootLayout({ children }) {
     const handleBeforeInstallPrompt = (e) => {
       e.preventDefault();
       deferredPrompt = e;
-      installButton.style.display = "block"; // Show the install button
+      // Show the install button only for Android
+      if (navigator.userAgent.includes('Android')) {
+        installButton.style.display = "block";
+      }
     };
 
     const handleAppInstalled = () => {
-      installButton.style.display = "none"; // Hide the install button
+      installButton.style.display = "none";
+    };
+
+    const handleInstallButtonClick = () => {
+      if (navigator.userAgent.includes('Android')) {
+        if (deferredPrompt) {
+          deferredPrompt.prompt();
+          deferredPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === "accepted") {
+              console.log("User accepted the A2HS prompt");
+            } else {
+              console.log("User dismissed the A2HS prompt");
+            }
+            deferredPrompt = null;
+          });
+        }
+      } else if (navigator.userAgent.includes('iPhone') || navigator.userAgent.includes('iPad')) {
+        alert('Para instalar esta aplicación, ábrela en Safari, toca el botón Compartir y selecciona «Agregar a inicio».');
+      }
     };
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
     window.addEventListener("appinstalled", handleAppInstalled);
 
-    installButton.addEventListener("click", () => {
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then((choiceResult) => {
-          if (choiceResult.outcome === "accepted") {
-            console.log("User accepted the A2HS prompt");
-          } else {
-            console.log("User dismissed the A2HS prompt");
-          }
-          deferredPrompt = null; // Clear the prompt
-        });
-      }
-    });
+    if (installButton) {
+      installButton.addEventListener("click", handleInstallButtonClick);
+    }
 
     return () => {
       window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
       window.removeEventListener("appinstalled", handleAppInstalled);
+      if (installButton) {
+        installButton.removeEventListener("click", handleInstallButtonClick);
+      }
     };
   }, []);
 
