@@ -3,7 +3,7 @@
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { useEffect } from "react";
-import { metadata as siteMetadata, viewport as siteViewport } from "./metadata";
+import { metadata as siteMetadata } from "./metadata";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -23,6 +23,7 @@ export default function RootLayout({ children }) {
 
     const handleAppInstalled = () => {
       installButton.style.display = "none";
+      localStorage.setItem("appInstalled", "true"); // Mark app as installed
     };
 
     const handleInstallButtonClick = () => {
@@ -43,14 +44,21 @@ export default function RootLayout({ children }) {
       }
     };
 
-    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
-    window.addEventListener("appinstalled", handleAppInstalled);
+    // Initialize the installation status
+    const isAppInstalled = localStorage.getItem("appInstalled");
 
     if (installButton) {
+      if (isAppInstalled) {
+        installButton.style.display = "none"; // Hide button if app is installed
+      } else {
+        installButton.style.display = "block"; // Show button otherwise
+      }
+
       installButton.addEventListener("click", handleInstallButtonClick);
-      // Show the button for all users initially
-      installButton.style.display = "block";
     }
+
+    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+    window.addEventListener("appinstalled", handleAppInstalled);
 
     return () => {
       window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
