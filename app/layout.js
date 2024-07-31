@@ -3,7 +3,7 @@
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { useEffect } from "react";
-import { metadata as siteMetadata, viewport as siteViewport } from "./metadata";
+import { metadata as siteMetadata } from "./metadata";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -11,64 +11,81 @@ export default function RootLayout({ children }) {
   useEffect(() => {
     let deferredPrompt;
     const installButton = document.getElementById("installButton");
-  
+
     const handleBeforeInstallPrompt = (e) => {
       e.preventDefault();
       deferredPrompt = e;
-      installButton.style.display = "block"; // Show the install button
+      if (installButton) {
+        installButton.style.display = "block"; // Show the install button
+      }
     };
-  
+
     const handleAppInstalled = () => {
-      installButton.style.display = "none"; // Hide the install button
+      if (installButton) {
+        installButton.style.display = "none"; // Hide the install button
+      }
     };
-  
+
+    // Remove all service workers (if necessary)
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then(function(registrations) {
-        for(let registration of registrations) {
+      navigator.serviceWorker.getRegistrations().then((registrations) => {
+        for (let registration of registrations) {
           registration.unregister();
         }
       });
     }
+
+    // Handle the beforeinstallprompt event for Android
     if ('beforeinstallprompt' in window) {
       window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
-    } else if (navigator.userAgent.includes('iPhone') || navigator.userAgent.includes('iPad')) {
+    }
+
+    // Handle app installation for iOS
+    if (navigator.userAgent.includes('iPhone') || navigator.userAgent.includes('iPad')) {
       if (window.navigator.standalone) {
         // If the app is already installed on the home screen, hide the button
-        installButton.style.display = "none";
+        if (installButton) {
+          installButton.style.display = "none";
+        }
       } else {
         // Show instructions for iOS users
-        installButton.style.display = "block";
-        installButton.innerText = "Instalar";
-        installButton.onclick = () => {
-          alert('Para instalar esta aplicación, ábrela en Safari, toca el botón Compartir y selecciona «Agregar a inicio».');
-        };
+        if (installButton) {
+          installButton.style.display = "block";
+          installButton.innerText = "Instalar";
+          installButton.onclick = () => {
+            alert('Para instalar esta aplicación, ábrela en Safari, toca el botón Compartir y selecciona «Agregar a inicio».');
+          };
+        }
       }
     } else if (navigator.userAgent.includes('Android')) {
       // Show the install button for Android users
-      installButton.style.display = "block";
-      installButton.innerText = "Instalar";
-      installButton.onclick = () => {
-        // Trigger the installation process for Android devices
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then((choiceResult) => {
-          if (choiceResult.outcome === 'accepted') {
-            console.log('User accepted the install prompt');
-          } else {
-            console.log('User dismissed the install prompt');
+      if (installButton) {
+        installButton.style.display = "block";
+        installButton.innerText = "Instalar";
+        installButton.onclick = () => {
+          if (deferredPrompt) {
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then((choiceResult) => {
+              if (choiceResult.outcome === 'accepted') {
+                console.log('User accepted the install prompt');
+              } else {
+                console.log('User dismissed the install prompt');
+              }
+              deferredPrompt = null;
+            });
           }
-          deferredPrompt = null;
-        });
-      };
+        };
+      }
     }
-  
+
     window.addEventListener("appinstalled", handleAppInstalled);
-  
+
     return () => {
       window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
       window.removeEventListener("appinstalled", handleAppInstalled);
     };
   }, []);
-  
+
   return (
     <html lang="en">
       <head>
