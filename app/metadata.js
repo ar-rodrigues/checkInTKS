@@ -1,7 +1,7 @@
 // metadata.js
 
-const APP_NAME = "SamanthoBot App";
-const APP_DEFAULT_TITLE = "SamanthoBot";
+const APP_NAME = "CheckIn TKS";
+const APP_DEFAULT_TITLE = "CheckIn";
 const APP_TITLE_TEMPLATE = "%s - PWA App";
 const APP_DESCRIPTION = "App to register employees check in";
 

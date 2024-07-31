@@ -1,11 +1,11 @@
 {
-  "name": "SamanthoBot",
+  "name": "CheckIn TKS",
   "version": "1.0.0",
-  "description": "SamanthoBot",
-  "manifest_version": 3,
+  "description": "App for automatic check-in on TKS.",
+  "manifest_version": 4,
   "author": "Alisson Rodrigues",
   "action":{
       "default_popup": "index.html",
-      "default_title": "SamanthoBot"
+      "default_title": "CheckIn TKS"
   }
 }
