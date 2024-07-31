@@ -19,22 +19,24 @@ export default function RootLayout({ children }) {
       if (installButton) {
         installButton.style.display = "block"; // Show the install button
       }
+      console.log('Before install prompt triggered');
     };
 
     const handleAppInstalled = () => {
       if (installButton) {
         installButton.style.display = "none"; // Hide the install button
       }
+      console.log('App installed');
     };
 
-    // Remove all service workers (if necessary)
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then((registrations) => {
-        for (let registration of registrations) {
-          registration.unregister();
-        }
-      });
-    }
+    // Optional: Comment out service worker unregistering to test
+    // if ('serviceWorker' in navigator) {
+    //   navigator.serviceWorker.getRegistrations().then((registrations) => {
+    //     for (let registration of registrations) {
+    //       registration.unregister();
+    //     }
+    //   });
+    // }
 
     // Handle the beforeinstallprompt event for Android
     if ('beforeinstallprompt' in window) {
