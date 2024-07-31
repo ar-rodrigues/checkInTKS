@@ -1,11 +1,11 @@
-"use client"
+"use client";
 
-import { Inter } from "next/font/google"
-import "./globals.css"
-import { useEffect } from "react"
-import { metadata as siteMetadata, viewport as siteViewport } from "./metadata"
+import { Inter } from "next/font/google";
+import "./globals.css";
+import { useEffect } from "react";
+import { metadata as siteMetadata, viewport as siteViewport } from "./metadata";
 
-const inter = Inter({ subsets: ["latin"] })
+const inter = Inter({ subsets: ["latin"] });
 
 export default function RootLayout({ children }) {
   useEffect(() => {
@@ -43,6 +43,13 @@ export default function RootLayout({ children }) {
           alert('Para instalar esta aplicación, ábrela en Safari, toca el botón Compartir y selecciona «Agregar a inicio».');
         };
       }
+    } else if (navigator.userAgent.includes('Android')) {
+      // Show instructions for Android users
+      installButton.style.display = "block";
+      installButton.innerText = "Install";
+      installButton.onclick = () => {
+        alert('To install this app, open the browser menu and select "Add to Home Screen".');
+      };
     }
   
     window.addEventListener("appinstalled", handleAppInstalled);
