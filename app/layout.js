@@ -2,19 +2,20 @@
 
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { metadata as siteMetadata } from "./metadata";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export default function RootLayout({ children }) {
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+
   useEffect(() => {
-    let deferredPrompt;
     const installButton = document.getElementById("installButton");
 
     const handleBeforeInstallPrompt = (e) => {
       e.preventDefault();
-      deferredPrompt = e;
+      setDeferredPrompt(e);
       if (installButton) {
         installButton.style.display = "block"; // Show the install button
       }
@@ -71,8 +72,10 @@ export default function RootLayout({ children }) {
               } else {
                 console.log('User dismissed the install prompt');
               }
-              deferredPrompt = null;
+              setDeferredPrompt(null); // Clear the prompt
             });
+          } else {
+            console.log('No deferredPrompt available');
           }
         };
       }
@@ -84,7 +87,7 @@ export default function RootLayout({ children }) {
       window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
       window.removeEventListener("appinstalled", handleAppInstalled);
     };
-  }, []);
+  }, [deferredPrompt]);
 
   return (
     <html lang="en">
