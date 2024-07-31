@@ -44,11 +44,20 @@ export default function RootLayout({ children }) {
         };
       }
     } else if (navigator.userAgent.includes('Android')) {
-      // Show instructions for Android users
+      // Show the install button for Android users
       installButton.style.display = "block";
-      installButton.innerText = "Install";
+      installButton.innerText = "Instalar";
       installButton.onclick = () => {
-        alert('To install this app, open the browser menu and select "Add to Home Screen".');
+        // Trigger the installation process for Android devices
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            console.log('User accepted the install prompt');
+          } else {
+            console.log('User dismissed the install prompt');
+          }
+          deferredPrompt = null;
+        });
       };
     }
   
