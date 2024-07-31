@@ -48,6 +48,8 @@ export default function RootLayout({ children }) {
 
     if (installButton) {
       installButton.addEventListener("click", handleInstallButtonClick);
+      // Show the button for all users initially
+      installButton.style.display = "block";
     }
 
     return () => {
