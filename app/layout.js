@@ -11,16 +11,20 @@ export default function RootLayout({ children }) {
   useEffect(() => {
     let deferredPrompt;
     const installButton = document.getElementById("installButton");
-
+  
     const handleBeforeInstallPrompt = (e) => {
       e.preventDefault();
       deferredPrompt = e;
-      // Show the install button only for Android
-      if (navigator.userAgent.includes('Android')) {
-        installButton.style.display = "block";
+
+      // Detect if the device is mobile and app is not installed
+      const isMobile = /Mobi|Android|iPhone|iPad|iPod/.test(navigator.userAgent);
+      const isAppInstalled = localStorage.getItem("appInstalled");
+
+      if (isMobile && !isAppInstalled) {
+        installButton.style.display = "block"; // Show button only on mobile if app not installed
       }
     };
-
+  
     const handleAppInstalled = () => {
       installButton.style.display = "none";
       localStorage.setItem("appInstalled", "true"); // Mark app as installed
@@ -44,14 +48,14 @@ export default function RootLayout({ children }) {
       }
     };
 
-    // Initialize the installation status
     const isAppInstalled = localStorage.getItem("appInstalled");
 
+    // Initialize the install button visibility based on installation status and device type
     if (installButton) {
-      if (isAppInstalled) {
-        installButton.style.display = "none"; // Hide button if app is installed
+      if (isAppInstalled || !/Mobi|Android|iPhone|iPad|iPod/.test(navigator.userAgent)) {
+        installButton.style.display = "none"; // Hide button if app is installed or not on mobile
       } else {
-        installButton.style.display = "block"; // Show button otherwise
+        installButton.style.display = "block";
       }
 
       installButton.addEventListener("click", handleInstallButtonClick);
