@@ -15,19 +15,14 @@ export default function RootLayout({ children }) {
     const handleBeforeInstallPrompt = (e) => {
       e.preventDefault();
       deferredPrompt = e;
-
-      // Detect if the device is mobile and app is not installed
-      const isMobile = /Mobi|Android|iPhone|iPad|iPod/.test(navigator.userAgent);
-      const isAppInstalled = localStorage.getItem("appInstalled");
-
-      if (isMobile && !isAppInstalled) {
-        installButton.style.display = "block"; // Show button only on mobile if app not installed
+      // Show the install button only for Android
+      if (navigator.userAgent.includes('Android')) {
+        installButton.style.display = "block";
       }
     };
   
     const handleAppInstalled = () => {
       installButton.style.display = "none";
-      localStorage.setItem("appInstalled", "true"); // Mark app as installed
     };
 
     const handleInstallButtonClick = () => {
@@ -48,14 +43,26 @@ export default function RootLayout({ children }) {
       }
     };
 
-    const isAppInstalled = localStorage.getItem("appInstalled");
+    const checkInstallation = () => {
+      // Check if the app is installed on iOS
+      if (navigator.userAgent.includes('iPhone') || navigator.userAgent.includes('iPad')) {
+        return window.navigator.standalone; // Returns true if the app is installed
+      }
 
-    // Initialize the install button visibility based on installation status and device type
+      // For Android, check if a service worker is controlling the page
+      if (navigator.userAgent.includes('Android') && 'serviceWorker' in navigator) {
+        return navigator.serviceWorker.controller !== null;
+      }
+
+      return false;
+    };
+
+    // Initialize the install button visibility
     if (installButton) {
-      if (isAppInstalled || !/Mobi|Android|iPhone|iPad|iPod/.test(navigator.userAgent)) {
-        installButton.style.display = "none"; // Hide button if app is installed or not on mobile
+      if (checkInstallation()) {
+        installButton.style.display = "none"; // Hide button if app is installed
       } else {
-        installButton.style.display = "block";
+        installButton.style.display = "block"; // Show button otherwise
       }
 
       installButton.addEventListener("click", handleInstallButtonClick);
