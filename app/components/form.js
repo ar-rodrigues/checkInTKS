@@ -1,3 +1,4 @@
+import SHA256 from 'crypto-js/sha256';
 import React, { useState, useEffect, useRef } from 'react';
 import Select from 'react-select';
 import GeneratedText from './generatedText';
@@ -7,13 +8,25 @@ const Form = ({ user }) => {
     empleado: user,
     options: null,
     location: '',
-    coordinates: ''
+    coordinates: '',
+    uniqueKey: null
   });
   const [options, setOptions] = useState([]);
   const [generatedText, setGeneratedText] = useState(false);
   const [message, setMessage] = useState('');
   const [isLoadingLocation, setIsLoadingLocation] = useState(false);
   const [locationError, setLocationError] = useState('');
+
+  const deviceInfo = {
+    userAgent: navigator.userAgent,
+    platform: navigator.userAgentData?.platform || navigator.platform,
+    mobile: navigator.userAgentData?.mobile || (navigator.userAgent.includes('Mobi') || navigator.userAgent.includes('Android')),
+    language: navigator.language,
+    hardwareConcurrency: navigator.hardwareConcurrency,
+  };
+  
+  const uniqueKey = SHA256(JSON.stringify(deviceInfo)).toString();
+  
 
   const formRef = useRef(null);
 
@@ -73,13 +86,17 @@ const Form = ({ user }) => {
       alert('Por favor complete todos los campos');
       return;
     }
+    setFormData((prevData) => ({
+      ...prevData,
+      uniqueKey,
+    }));
     setGeneratedText(true);
   };
 
   const handleChange = (field, value) => {
     setFormData((prevData) => ({
       ...prevData,
-      [field]: value
+      [field]: value,
     }));
   };
 

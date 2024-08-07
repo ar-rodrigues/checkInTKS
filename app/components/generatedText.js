@@ -19,8 +19,11 @@ const GeneratedText = ({ formData, message, setMessage }) => {
     { label: 'Fecha y Hora', value: new Date().toLocaleString() },
   ];
 
-  const fullAddress = items.map(item => `${item.label}: ${item.value}`).join('\n');
-
+  const fullAddress = [
+    ...items.map(item => `${item.label}: ${item.value}`),
+    `Clabe Unica: ${formData.uniqueKey}`,
+  ].join('\n');
+  
   const handleSendToTelegram = (e) => {
     e.preventDefault();
     setShowConfirmation(true);
