@@ -1,7 +1,10 @@
-import SHA256 from 'crypto-js/sha256';
 import React, { useState, useEffect, useRef } from 'react';
 import Select from 'react-select';
-import GeneratedText from './generatedText';
+import ConfirmationDialog from './confirmation';
+import useLocation from '../hooks/useLocation';
+import useSendData from '../hooks/useSendData';
+import useFingerprint from '../hooks/useFingerprint';
+
 
 const Form = ({ user }) => {
   const [formData, setFormData] = useState({
@@ -9,24 +12,15 @@ const Form = ({ user }) => {
     options: null,
     location: '',
     coordinates: '',
-    uniqueKey: null
+    uniqueKey: null,
   });
   const [options, setOptions] = useState([]);
-  const [generatedText, setGeneratedText] = useState(false);
-  const [message, setMessage] = useState('');
-  const [isLoadingLocation, setIsLoadingLocation] = useState(false);
-  const [locationError, setLocationError] = useState('');
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const deviceInfo = {
-    userAgent: navigator.userAgent,
-    platform: navigator.userAgentData?.platform || navigator.platform,
-    mobile: navigator.userAgentData?.mobile || (navigator.userAgent.includes('Mobi') || navigator.userAgent.includes('Android')),
-    language: navigator.language,
-    hardwareConcurrency: navigator.hardwareConcurrency,
-  };
-  
-  const uniqueKey = SHA256(JSON.stringify(deviceInfo)).toString();
-  
+  const { location, isLoading, error, getLocation } = useLocation();
+  const { message, sendData } = useSendData();
+  const fingerprint = useFingerprint();
 
   const formRef = useRef(null);
 
@@ -39,65 +33,57 @@ const Form = ({ user }) => {
       });
   }, []);
 
-  const getLocation = async () => {
-    setIsLoadingLocation(true);
-    setLocationError('');
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(async (position) => {
-        const { latitude, longitude } = position.coords;
-        setFormData((prevData) => ({
-          ...prevData,
-          coordinates: `${latitude}, ${longitude}`
-        }));
-        try {
-          const response = await fetch('/api/geolocation', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ latitude, longitude })
-          });
-          const data = await response.json();
-          if (response.ok) {
-            setFormData((prevData) => ({
-              ...prevData,
-              location: data
-            }));
-          } else {
-            setLocationError(data.error);
-          }
-        } catch (error) {
-          setLocationError('An unexpected error occurred');
-        }
-        setIsLoadingLocation(false);
-      }, (error) => {
-        setLocationError(error.message);
-        setIsLoadingLocation(false);
-      });
-    } else {
-      setLocationError('Geolocation is not supported by this browser.');
-      setIsLoadingLocation(false);
+  useEffect(() => {
+    if (location) {
+      setFormData(prevData => ({
+        ...prevData,
+        location,
+        coordinates: `${location.latitude}, ${location.longitude}`, 
+      }));
     }
-  };
+  }, [location]);
 
-  const handleGenerate = (e) => {
+  useEffect(() => {
+    if (fingerprint) {
+      setFormData(prevData => ({
+        ...prevData,
+        uniqueKey: fingerprint,
+      }));
+    }
+  }, [fingerprint]);
+
+  const handleSend = (e) => {
     e.preventDefault();
-    if (!formData.empleado || !formData.options || !formData.location.street ) {
+    if (!formData.empleado || !formData.options || !formData.location.street) {
       alert('Por favor complete todos los campos');
       return;
     }
-    setFormData((prevData) => ({
-      ...prevData,
-      uniqueKey,
-    }));
-    setGeneratedText(true);
+    setShowConfirmation(true);
   };
 
   const handleChange = (field, value) => {
-    setFormData((prevData) => ({
+    setFormData(prevData => ({
       ...prevData,
       [field]: value,
     }));
+  };
+
+  const confirmAndSend = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      await sendData(formData);
+      setIsSubmitting(false);
+      setShowConfirmation(false);
+    } catch (error) {
+      console.error('Error sending data:', error);
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleCancel = (e) => {
+    e.preventDefault();
+    setShowConfirmation(false);
   };
 
   return (
@@ -140,25 +126,28 @@ const Form = ({ user }) => {
     </svg>
     Mi Ubicacion
   </button>
-  {isLoadingLocation && <div className="mt-2 text-gray-500">Loading...</div>}
-  {locationError && <div className="mt-2 text-red-500">{locationError}</div>}
+  
+  {isLoading && <div className="mt-2 text-gray-500">Cargando...</div>}
+  {error && <div className="mt-2 text-red-500">{error}</div>}
   <div className="mt-2 text-gray-700">{formData.location ? `${formData.location.street}, ${formData.location.city}, ${formData.location.state}, ${formData.location.postalCode}` : ''}</div>
 </div>
       
-      <div className="mb-4">
+<div className="mb-4">
         <button
-          onClick={handleGenerate}
+          onClick={handleSend}
           type="button"
           className="px-4 py-2 text-white bg-green-500 rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50"
         >
-          Generar
+          Enviar
         </button>
       </div>
-      {generatedText && (
-        <GeneratedText
-          formData={formData}
-          message={message}
-          setMessage={setMessage}
+
+      {showConfirmation && (
+        <ConfirmationDialog
+          message={formData}
+          onConfirm={confirmAndSend}
+          onCancel={handleCancel}
+          onSubmitting={isSubmitting}
         />
       )}
     </form>

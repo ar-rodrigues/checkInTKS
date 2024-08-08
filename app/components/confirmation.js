@@ -1,6 +1,6 @@
 import React from 'react';
 
-const ConfirmationDialog = ({ message, onConfirm, onCancel }) => {
+const ConfirmationDialog = ({ message, onConfirm, onCancel, onSubmitting }) => {
     const {empleado, options, location, coordinates} = message;
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-75">
@@ -17,15 +17,17 @@ const ConfirmationDialog = ({ message, onConfirm, onCancel }) => {
         <div className="flex justify-end py-4 space-x-2">
           <button
             onClick={onCancel}
+            disabled={onSubmitting}
             className="px-4 py-2 text-white bg-gray-500 rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50"
           >
             Cancelar
           </button>
           <button
             onClick={onConfirm}
+            disabled={onSubmitting}
             className="px-4 py-2 text-white bg-green-500 rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50"
           >
-            Confirmar
+            {onSubmitting ? 'Enviando...' : 'Enviar'}
           </button>
         </div>
       </div>
